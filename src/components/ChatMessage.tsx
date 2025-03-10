@@ -62,7 +62,7 @@ export function ChatMessage({ message, theme, fontSize, isLoading, isLastMessage
               } flex items-center gap-2`}>
                 {model.name}
                 {(isLoading || isStreaming) && isLastMessage && (
-                  <span className="text-xs">
+                  <span className="text-xs" data-testid="loading-indicator">
                     {AppText.Common.LOADING}
                   </span>
                 )}

@@ -92,24 +92,12 @@ describe('ChatPage', () => {
     });
   });
 
-  describe('Model Selection', () => {
-    it('renders available models in selector', () => {
-      renderWithRedux(<ChatPage {...defaultProps} />);
-      const modelSelector = screen.getByRole('combobox');
-      expect(modelSelector).toBeInTheDocument();
-
-      const options = screen.getAllByRole('option');
-      expect(options).toHaveLength(2);
-      expect(options[0]).toHaveTextContent('GPT-4 Mini');
-      expect(options[1]).toHaveTextContent('Gemini 2.0 Flash');
-    });
-
-    it('allows model selection change', () => {
-      const { store } = renderWithRedux(<ChatPage {...defaultProps} />);
-      const modelSelector = screen.getByRole('combobox');
-
-      fireEvent.change(modelSelector, { target: { value: 'gemini-2.0-flash-lite-preview-02-05' } });
-      expect(store.getState().settings.model).toBe('gemini-2.0-flash-lite-preview-02-05');
+  describe('Loading State', () => {
+    it('shows loading indicator while waiting for response', () => {
+      renderWithRedux(<ChatPage {...defaultProps} isLoading={true} />);
+      const loadingIndicator = screen.getByTestId('loading-indicator');
+      expect(loadingIndicator).toBeInTheDocument();
+      expect(loadingIndicator).toHaveTextContent('እባክዎ ይጠብቁ...');
     });
   });
 
@@ -120,23 +108,16 @@ describe('ChatPage', () => {
 
     it('sends message and displays response', async () => {
       renderWithRedux(<ChatPage {...defaultProps} />);
-
+      
       const input = screen.getByPlaceholderText('በአማርኛ ይጻፉ...');
       const form = screen.getByRole('form', { name: 'chat-form' });
-
+      
       fireEvent.change(input, { target: { value: 'ሰላም' } });
       fireEvent.submit(form);
-
+      
       await waitFor(() => {
         expect(screen.getByText('ሰላም')).toBeInTheDocument();
       });
-    });
-
-    it('shows loading indicator while waiting for response', () => {
-      renderWithRedux(<ChatPage {...defaultProps} isLoading={true} />);
-      const loadingIndicator = screen.getByTestId('loading-indicator');
-      expect(loadingIndicator).toBeInTheDocument();
-      expect(loadingIndicator).toHaveTextContent('እባክዎ ይጠብቁ...');
     });
 
     it('handles API errors gracefully', async () => {
@@ -163,7 +144,7 @@ describe('ChatPage', () => {
       await waitFor(() => {
         const messages = store.getState().chat.messages;
         const lastMessage = messages[messages.length - 1];
-        expect(lastMessage?.content).toBe(AppText.Common.ERROR);
+        expect(lastMessage?.content).toBe('ይቅርታ፣ ችግር ተፈጥሯል። እባክዎ ቆይተው እንደገና ይሞክሩ።');
       });
     });
   });

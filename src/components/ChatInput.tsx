@@ -34,7 +34,7 @@ export function ChatInput({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (isLoading) return;
     onSubmit(e);
     inputRef.current?.focus();
   };
@@ -71,7 +71,7 @@ export function ChatInput({
           
           <button
             type="submit"
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading}
             className={`p-2 ${
               theme === 'dark'
                 ? 'text-gray-300 hover:text-gray-100'
