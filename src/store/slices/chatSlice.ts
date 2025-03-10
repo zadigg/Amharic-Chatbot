@@ -3,7 +3,6 @@ import { Message } from '../../types';
 import { generateResponse } from '../../services/chat';
 import { AppDispatch } from '../index';
 import { setModel } from './settingsSlice';
-import { AppText } from '../../constants/text';
 
 export type ChatSession = {
   id: string;
@@ -101,6 +100,7 @@ const chatSlice = createSlice({
         lastMessage.content = action.payload.content;
         lastMessage.isStreaming = false;
 
+        // Update session messages
         const sessionIndex = state.sessions.findIndex(s => s.id === state.currentSessionId);
         if (sessionIndex !== -1) {
           state.sessions[sessionIndex].messages = state.messages;
@@ -128,6 +128,7 @@ export const {
   updateSessionModel,
 } = chatSlice.actions;
 
+// Thunk for handling message submission
 export const submitMessage = (input: string, modelId: string) => async (dispatch: AppDispatch, getState: () => any) => {
   if (!input.trim()) return;
 
@@ -143,6 +144,7 @@ export const submitMessage = (input: string, modelId: string) => async (dispatch
   dispatch(setInput(''));
   dispatch(setLoading(true));
 
+  let responseContent = '';
   const botMessage: Message = {
     role: 'assistant',
     content: '',
@@ -157,21 +159,24 @@ export const submitMessage = (input: string, modelId: string) => async (dispatch
         dispatch(setLoading(true));
       },
       onToken: (token: string) => {
-        dispatch(updateLastMessage({ content: token }));
+        responseContent += token;
+        dispatch(updateLastMessage({ content: responseContent }));
       },
       onComplete: () => {
         dispatch(setLoading(false));
+        dispatch(updateLastMessage({ content: responseContent }));
       },
       onError: (error) => {
         console.error('Error in streaming response:', error);
         dispatch(setLoading(false));
-        dispatch(updateLastMessage({ content: AppText.Common.ERROR }));
+        dispatch(updateLastMessage({ content: 'ይቅርታ፣ ችግር ተፈጥሯል። እባክዎ ቆይተው እንደገና ይሞክሩ።' }));
       }
     });
   } catch (error) {
     console.error('Error generating response:', error);
+    dispatch(updateLastMessage({ content: 'ይቅርታ፣ ችግር ተፈጥሯል። እባክዎ ቆይተው እንደገና ይሞክሩ።' }));
+  } finally {
     dispatch(setLoading(false));
-    dispatch(updateLastMessage({ content: AppText.Common.ERROR }));
   }
 };
 

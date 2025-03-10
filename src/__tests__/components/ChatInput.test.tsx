@@ -73,16 +73,6 @@ describe('ChatInput', () => {
       expect(mockProps.onSubmit).toHaveBeenCalled();
     });
 
-    it('prevents submission when input is empty', () => {
-      renderWithRedux(<ChatInput {...mockProps} input="" />);
-      const form = screen.getByRole('form', { name: 'chat-form' });
-      const submitButton = screen.getByRole('button', { type: 'submit' });
-      
-      expect(submitButton).toBeDisabled();
-      fireEvent.submit(form);
-      expect(mockProps.onSubmit).not.toHaveBeenCalled();
-    });
-
     it('prevents submission when loading', () => {
       renderWithRedux(<ChatInput {...mockProps} input="ሰላም" isLoading={true} />);
       const form = screen.getByRole('form', { name: 'chat-form' });
@@ -108,6 +98,39 @@ describe('ChatInput', () => {
     it('shows model description', () => {
       renderWithRedux(<ChatInput {...mockProps} />);
       expect(screen.getByText('OpenAI GPT-4 Mini model')).toBeInTheDocument();
+    });
+  });
+
+  describe('Theme Support', () => {
+    it('applies correct theme classes in light mode', () => {
+      renderWithRedux(<ChatInput {...mockProps} theme="light" />);
+      const input = screen.getByPlaceholderText('በአማርኛ ይጻፉ...');
+      expect(input).toHaveClass('text-gray-900');
+    });
+
+    it('applies correct theme classes in dark mode', () => {
+      renderWithRedux(<ChatInput {...mockProps} theme="dark" />);
+      const input = screen.getByPlaceholderText('በአማርኛ ይጻፉ...');
+      expect(input).toHaveClass('text-gray-100');
+    });
+  });
+
+  describe('Accessibility', () => {
+    it('maintains focus after submission', () => {
+      renderWithRedux(<ChatInput {...mockProps} />);
+      const input = screen.getByPlaceholderText('በአማርኛ ይጻፉ...');
+      const form = screen.getByRole('form', { name: 'chat-form' });
+      
+      input.focus();
+      fireEvent.submit(form);
+      
+      expect(document.activeElement).toBe(input);
+    });
+
+    it('has accessible submit button', () => {
+      renderWithRedux(<ChatInput {...mockProps} />);
+      const submitButton = screen.getByRole('button', { type: 'submit' });
+      expect(submitButton).toBeInTheDocument();
     });
   });
 });

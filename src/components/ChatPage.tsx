@@ -19,15 +19,7 @@ export function ChatPage({ messages, theme, fontSize, isLoading }: ChatPageProps
   const { settings } = useSettings();
 
   const scrollToBottom = () => {
-    try {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } catch (error) {
-      // Fallback for environments where scrollIntoView is not available
-      const container = messagesEndRef.current?.parentElement;
-      if (container) {
-        container.scrollTop = container.scrollHeight;
-      }
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -38,7 +30,7 @@ export function ChatPage({ messages, theme, fontSize, isLoading }: ChatPageProps
     if (!isLoading) return null;
 
     return (
-      <div className="flex items-center gap-2 px-4 py-2 rounded-lg max-w-fit" data-testid="loading-indicator">
+      <div className="flex items-center gap-2 px-4 py-2 rounded-lg max-w-fit">
         <div className="flex space-x-1.5">
           <div className={`w-2 h-2 rounded-full ${theme === 'dark' ? 'bg-gray-400' : 'bg-gray-500'} animate-bounce [animation-delay:-0.3s]`} />
           <div className={`w-2 h-2 rounded-full ${theme === 'dark' ? 'bg-gray-400' : 'bg-gray-500'} animate-bounce [animation-delay:-0.15s]`} />
@@ -109,7 +101,7 @@ export function ChatPage({ messages, theme, fontSize, isLoading }: ChatPageProps
               />
             ))}
             {renderThinkingIndicator()}
-            <div ref={messagesEndRef} data-testid="messages-end" />
+            <div ref={messagesEndRef} />
           </div>
         </div>
       </div>
